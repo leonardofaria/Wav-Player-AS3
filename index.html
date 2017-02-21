@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>AS3 Wav Player</title>
+	<meta charset="UTF-8">
+	<style type="text/css" media="screen">
+		html, body { height:100%; background-color: #ffffff;}
+		body { margin:0; padding:0; overflow:hidden; }
+		#flashContent { width:100%; height:100%; }
+	</style>
+	<script type="text/javascript" src="swfobject.js" charset="utf-8"></script>
+	<script type="text/javascript">
+		var flashvars = {};
+		var params = {};
+		var attributes = {};
+		flashvars.soundURL = "sound/windows.wav";
+		// flashvars.debugMode = "true";
+		swfobject.embedSWF("Wav_Player_AS3.swf", "wavPlayerContent", "325px", "30px", "10.3", "", flashvars, params,attributes);
+	</script>
+</head>
+<body>
+	<h1>AS3 Wav Player</h1>
+	<p>Don't forget to add Crossdomain.xml to your server and change Sound URL</p>
+	<div id="wavPlayerContent"></div>
+</body>
+</html>
