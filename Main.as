@@ -54,6 +54,9 @@
 				controls.debugTxt.appendText(error.toString());
 			}
 			
+			if (soundURL === null) {
+				soundURL = "sound/windows.wav";
+			}
 			//Inıtialize
 			initialize();
 			urlRequest = new URLRequest(soundURL);
@@ -84,6 +87,7 @@
 		public function initialize():void
 		{
 			controls.mouseEnabled = false;
+			controls.playPause.visible = false;
 			
 			if(debugMode == true)
 			{
@@ -104,7 +108,7 @@
 
 			/*Default Values*/
 			controls.progressBar.scaleX = 0;
-			controls.timeText.text = "Loading";
+			controls.timeText.text = "";
 		}
 
 		//Live
@@ -112,19 +116,35 @@
 		{
 			var minutes:uint = Math.floor(sndChannel.position / 1000 / 60);
 			var seconds:uint = Math.floor(sndChannel.position / 1000) % 60;
-			controls.timeText.text = minutes + ':' + seconds;
+			
+			var minutesDuration:uint = Math.floor(duration / 1000 / 60);
+			var secondsDuration:uint = Math.floor(duration / 1000) % 60;
+			controls.timeText.text = minutes + ':' + leadingZeros(seconds, 2) + ' / ' + minutesDuration + ':' + leadingZeros(secondsDuration, 2);
 		}
 
 		private function onLoadComplete(ev:Event):void
 		{
-			controls.timeText.text = "Loaded";
+			prepareAudio();
+			controls.percentText.visible = false;
+		}
+		
+		private function prepareAudio():void
+		{
+			controls.playPause.visible = true;
 			controls.playPause.gotoAndStop("play");
 			snd = new WavSound(loader.data);
+			
+			var loadTime:Number = snd.bytesLoaded / snd.bytesTotal;
+			var estimatedLength:int = Math.ceil(snd.length / (loadTime));
+			duration = estimatedLength;
+			var minutesDuration:uint = Math.floor(duration / 1000 / 60);
+			var secondsDuration:uint = Math.floor(duration / 1000) % 60;
+			controls.timeText.text = '0:00 / ' + minutesDuration + ':' + leadingZeros(secondsDuration, 2);
 		}
 
 		private function progressHandler(ev:ProgressEvent):void
 		{
-			controls.percentText.text =  "%" + (Math.floor((ev.bytesLoaded/ev.bytesTotal*100)));
+			controls.percentText.text =  (Math.floor((ev.bytesLoaded/ev.bytesTotal*100))) + "%";
 		}
 
 		/*------------------------*/
@@ -136,6 +156,12 @@
 			
 			controls.progressBar.scaleX = playbackPercent / 100;
 			duration = estimatedLength;
+			
+			if (playbackPercent >= 99) {
+				prepareAudio();
+				position = 0;
+				controls.progressBar.scaleX = 0;
+			}
 		}
 
 		/*ACTIONS*/
@@ -174,7 +200,7 @@
 			if(controls.playPause.currentFrame == 20)
 			{
 				controls.playPause.gotoAndStop("pause");
-			}
+			} 
 			
 			controls.progressBar.scaleX = soundDist;
 		}	
@@ -206,7 +232,7 @@
 		
 		//Play - Pause Down
 		function playPauseDown(e:MouseEvent):void{
-			
+						
 			if(controls.playPause.currentFrame == 10) 
 			{
 				position = sndChannel.position;
@@ -221,6 +247,15 @@
 				addEventListener(Event.ENTER_FRAME, soundProgress);
 				addEventListener(Event.ENTER_FRAME , live);
 			}
+		}
+		
+		//Add Leading Zeros
+		function leadingZeros( value:uint, places:Number ):String { 
+			var result:String = value.toString();
+			while ( result.length < places ) {
+				result = '0' + result;
+			}
+			return result;
 		}
 	}
 
